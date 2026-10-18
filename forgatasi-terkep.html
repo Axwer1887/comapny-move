@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Forgatási térkép készítő</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+  --bg:#edf2ef;
+  --panel:#fff;
+  --tx:#1c2b25;
+  --mut:#718078;
+  --bd:#dce5df;
+  --ac:#18785e;
+  --ac-dark:#116047;
+  --soft:#f5f8f6;
+  --shadow:0 12px 34px rgba(29,54,43,.08);
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+body{
+  display:flex;
+  min-height:100vh;
+  margin:0;
+  background:var(--bg);
+  color:var(--tx);
+  font:14px/1.5 Inter,"Segoe UI",Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+aside{
+  flex:none;
+  width:380px;
+  max-width:100%;
+  height:100vh;
+  position:sticky;
+  top:0;
+  overflow-y:auto;
+  padding:26px 22px 30px;
+  background:var(--panel);
+  border-right:1px solid var(--bd);
+  scrollbar-color:#c7d4cc transparent;
+  scrollbar-width:thin;
+}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.brand .logo{
+  display:grid;place-items:center;
+  width:38px;height:38px;border-radius:11px;
+  background:var(--ac);color:#fff;
+  box-shadow:0 3px 9px rgba(24,120,94,.25);
+}
+.brand .logo svg{width:19px;height:19px}
+.brand h1{margin:0;font-size:22px;line-height:1.15;letter-spacing:-.035em;font-weight:800}
+.brand .tag{margin:0;font-size:12px;font-weight:500;color:var(--mut)}
+main{
+  flex:1;
+  min-width:0;
+  min-height:100vh;
+  padding:24px;
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.65),transparent 58%),
+    var(--bg);
+}
+h2{
+  margin:26px 0 12px;
+  padding-top:19px;
+  border-top:1px solid #e9eeeb;
+  color:var(--tx);
+  font-size:11px;
+  font-weight:750;
+  line-height:1.3;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  display:flex;align-items:center;gap:7px;
+}
+h2 .ic{color:var(--ac);display:flex;align-items:center}
+h2 .ic svg{width:13px;height:13px}
+p.s{margin:0;color:var(--mut);font-size:12px;line-height:1.5}
+.lead{max-width:290px;font-size:13px;margin:6px 0 0}
+input[type=text],input[type=number],textarea{
+  width:100%;
+  min-width:0;
+  padding:9px 11px;
+  border:1px solid var(--bd);
+  border-radius:9px;
+  background:#fff;
+  color:var(--tx);
+  font:inherit;
+  transition:border-color .16s ease,box-shadow .16s ease,background .16s ease;
+}
+textarea{resize:vertical}
+input[type=text]:hover,input[type=number]:hover,textarea:hover{border-color:#b8c9bf}
+input[type=text]:focus,input[type=number]:focus,textarea:focus{
+  outline:none;
+  border-color:var(--ac);
+  box-shadow:0 0 0 3px rgba(24,120,94,.13);
+}
+input[type=file]{
+  width:100%;
+  padding:9px;
+  border:1px dashed #b8c9bf;
+  border-radius:10px;
+  background:var(--soft);
+  color:var(--mut);
+  font:inherit;
+  font-size:12px;
+  transition:border-color .16s ease,background .16s ease;
+}
+input[type=file]:hover{border-color:var(--ac);background:#eef5f0}
+input[type=file]::file-selector-button{
+  margin-right:10px;
+  padding:7px 10px;
+  border:0;
+  border-radius:7px;
+  background:#e7f1eb;
+  color:var(--ac-dark);
+  font:inherit;
+  font-weight:650;
+  cursor:pointer;
+  transition:background .15s ease;
+}
+input[type=file]::file-selector-button:hover{background:#d4e9dd}
+input[type=color]{
+  flex:none;
+  width:36px;
+  height:36px;
+  padding:3px;
+  border:1px solid var(--bd);
+  border-radius:9px;
+  background:#fff;
+  cursor:pointer;
+}
+input[type=range]{accent-color:var(--ac);width:100%}
+input[type=checkbox],input[type=radio]{accent-color:var(--ac)}
+button{
+  min-height:36px;
+  padding:8px 11px;
+  border:1px solid var(--bd);
+  border-radius:9px;
+  background:#fff;
+  color:var(--tx);
+  font:inherit;
+  font-size:12px;
+  font-weight:620;
+  line-height:1.25;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  transition:transform .14s ease,border-color .14s ease,background .14s ease,color .14s ease,box-shadow .14s ease;
+}
+button:hover{border-color:#91b6a4;background:#f6faf7}
+button:active{transform:translateY(1px)}
+button:focus-visible{outline:3px solid rgba(24,120,94,.2);outline-offset:2px}
+button.on{
+  border-color:var(--ac);
+  background:var(--ac);
+  color:#fff;
+  box-shadow:0 3px 9px rgba(24,120,94,.16);
+}
+button.on:hover{border-color:var(--ac-dark);background:var(--ac-dark)}
+.row{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.row>input[type=text]{flex:1}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.type{
+  display:flex;
+  gap:8px;
+  align-items:flex-start;
+  margin-bottom:8px;
+  padding:10px;
+  border:1px solid var(--bd);
+  border-radius:11px;
+  background:#fff;
+  transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
+}
+.type.sel{border-color:var(--ac);background:#f5faf7;box-shadow:0 0 0 2px rgba(24,120,94,.08)}
+.type .f{display:flex;flex:1;min-width:0;flex-direction:column;gap:5px}
+.type input[type=text]{padding:7px 8px;font-size:12px}
+.type input[type=text]+input[type=text]{color:var(--mut)}
+.note-card{
+  display:flex;flex-direction:column;
+  padding:10px;border:1px solid var(--bd);
+  border-radius:11px;background:#fff;
+  margin-bottom:8px;
+}
+.item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  padding:6px 8px;
+  border-bottom:1px solid #edf1ee;
+  border-radius:6px;
+  font-size:12px;
+  transition:background .13s ease;
+}
+.item:hover{background:var(--soft)}
+.item button{min-height:28px;padding:2px 8px;border:0;background:transparent;color:var(--mut);font-weight:600}
+.item button:hover{background:#fceeee;color:#b42318}
+.icon-btn-danger{
+  min-height:28px;padding:2px 8px;border:0;background:transparent;
+  color:var(--mut);cursor:pointer;border-radius:6px;
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:background .13s ease,color .13s ease;
+}
+.icon-btn-danger:hover{background:#fceeee;color:#b42318}
+#wrap{
+  display:flex;
+  min-height:calc(100vh - 48px);
+  flex-direction:column;
+  justify-content:center;
+  gap:13px;
+  overflow:auto;
+  padding:16px;
+  border:1px solid #dce5df;
+  border-radius:17px;
+  background:rgba(255,255,255,.82);
+  box-shadow:var(--shadow);
+}
+#wrap::before{
+  content:"TÉRKÉP MUNKATERÜLET";
+  flex:none;
+  color:#829088;
+  font-size:10px;
+  font-weight:750;
+  letter-spacing:.14em;
+}
+canvas{
+  display:block;
+  width:100%;
+  height:auto;
+  border:1px solid rgba(22,43,32,.1);
+  border-radius:10px;
+  background:#e9efeb;
+  cursor:crosshair;
+  touch-action:none;
+}
+.hint{
+  margin-top:9px;
+  padding:10px 12px;
+  border:1px solid #dcebe2;
+  border-radius:10px;
+  background:#f3f8f5;
+  color:#587064;
+  font-size:12px;
+  line-height:1.55;
+}
+label.c{display:flex;gap:7px;align-items:center;font-size:12px;color:#44564c}
+#pMsg{margin:6px 0;color:var(--ac-dark);font-weight:600}
+#pList{margin-top:7px}
+#auto{margin-top:9px}
+#export{min-height:44px;border-radius:11px;font-size:13px;padding:11px}
+#selP{padding:12px}
+#selP input[type=text]{margin:7px 0}
+.drop-hint{
+  position:fixed;bottom:16px;right:16px;
+  display:none;align-items:center;gap:6px;
+  padding:6px 12px;border-radius:8px;
+  background:rgba(255,255,255,.75);
+  font-size:11px;font-weight:500;color:var(--mut);
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
+  backdrop-filter:blur(6px);
+}
+@media(min-width:961px){.drop-hint{display:flex}}
+@media(max-width:960px){
+  aside{width:340px;padding:22px 18px}
+  main{padding:18px}
+  #wrap{min-height:calc(100vh - 36px);padding:12px}
+}
+@media(max-width:760px){
+  body{flex-direction:column}
+  aside{
+    width:100%;
+    height:auto;
+    max-height:none;
+    position:static;
+    overflow:visible;
+    padding:22px 18px 26px;
+    border-right:0;
+    border-bottom:1px solid var(--bd);
+  }
+  main{min-height:auto;padding:14px}
+  #wrap{min-height:0;padding:10px;border-radius:13px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<aside>
+<div class="brand">
+<div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg></div>
+<div><h1>Forgatási térkép</h1><p class="tag">készítő studio</p></div>
+</div>
+<p class="s lead">Tölts fel egy műholdképet, rajzold rá a zónákat, exportáld PNG-ként.</p>
+
+<h2><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></span>Projektek</h2>
+<div class="row"><input type="text" id="pName" value="Új projekt" style="flex:1"><button id="pSave" class="on">Mentés</button></div>
+<p class="s" id="pMsg" style="margin:4px 0"></p>
+<div id="pList"></div>
+<div class="row" style="margin-top:6px"><button id="pNew">＋ Új</button><button id="pFile">↓ Fájlba</button><button id="pImp">↑ Fájlból</button><input type="file" id="pImpF" accept=".json" hidden></div>
+<p class="s" style="margin-top:4px">A legutóbbi munkád automatikusan mentődik, és újranyitáskor visszatöltődik.</p>
+
+<h2>1 · Háttérkép</h2>
+<input type="file" id="file" accept="image/*">
+<p class="s" style="margin-top:4px">Tipp: Google Maps / Google Earth képernyőkép. Húzd is a képet az oldalra.</p>
+
+<h2>2 · Képjavítás</h2>
+<button id="auto" class="on" style="width:100%">Automatikus képjavítás</button>
+<div style="display:grid;gap:4px;margin-top:8px" class="s">
+<label>Élesítés <input type="range" id="eSh" min="0" max="100" value="0" style="width:100%"></label>
+<label>Kontraszt <input type="range" id="eCo" min="70" max="150" value="100" style="width:100%"></label>
+<label>Telítettség <input type="range" id="eSa" min="50" max="170" value="100" style="width:100%"></label>
+<label>Fényerő <input type="range" id="eBr" min="70" max="140" value="100" style="width:100%"></label>
+<label class="c"><input type="checkbox" id="eUp"> 2× felbontás (finom nagyítás)</label>
+<button id="eRes">Eredeti kép</button></div>
+
+<h2>3 · Cím</h2>
+<div style="display:grid;gap:6px"><input type="text" id="title" value="FORGATÁSI HELYSZÍN TÉRKÉP"><input type="text" id="sub" value="Város, utca, helyszín neve, irányítószám"></div>
+
+<h2>Megjegyzések a térképen</h2>
+<div id="nList"></div>
+<button id="nAdd">＋ Új megjegyzés</button>
+<p class="s" style="margin-top:4px">Minden megjegyzés külön doboz, a térképen húzással mozgathatod.</p>
+
+<h2>4 · Zónatípusok</h2>
+<div id="types"></div>
+<button id="addType">＋ Új zónatípus</button>
+
+<h2>5 · Rajzolás</h2>
+<div class="grid" id="tools">
+<button data-t="sel" style="grid-column:span 2">Kijelölés · mozgatás · forgatás</button>
+<button data-t="free">Szabadkézi zóna</button>
+<button data-t="fpath">Szabadkézi útvonal</button>
+<button data-t="poly">Zóna (pontokkal)</button>
+<button data-t="rect">Zóna (téglalap)</button>
+<button data-t="path">Közlekedési útvonal</button>
+<button data-t="arrow">Bejárat nyíl</button>
+<div class="row" style="flex-wrap:nowrap"><button data-t="tarrow" style="flex:1">Szöveges nyíl</button><input type="color" id="tCol" value="#ef1c25" title="Új nyíl színe"></div>
+<button data-t="scale" style="grid-column:span 2">Lépték beállítása</button>
+</div>
+<div class="row" id="scaleRow" style="margin-top:6px;display:none"><span class="s">Valós távolság:</span><input type="number" id="scaleM" value="50" min="1" style="width:80px"><span class="s">méter (kattints két pontra)</span></div>
+<label class="s" style="display:block;margin-top:8px">Szabadkéz egyenesítése <input type="range" id="sm" min="2" max="40" value="14" style="width:100%"></label>
+<div class="hint" id="selP" style="display:none"><b>Kijelölt nyíl</b>
+<input type="text" id="aTxt" placeholder="Nyíl szövege" style="margin:6px 0"><label class="c">Szín <input type="color" id="aCol"></label></div>
+<div class="hint" id="hint"></div>
+<label class="c" style="margin-top:8px"><input type="checkbox" id="autoSel" checked> Rajzolás után vissza a kijelölés eszközre</label>
+<div class="row" style="margin-top:8px"><button id="finish">✓ Kész (Enter)</button><button id="cancel">Mégse (Esc)</button></div>
+
+<h2>6 · Megjelenítés</h2>
+<label class="c"><input type="checkbox" id="oLegend" checked> Jelmagyarázat</label>
+<label class="c"><input type="checkbox" id="oNorth" checked> Északi irány</label>
+<label class="c"><input type="checkbox" id="oScale" checked> Lépték</label>
+<label class="c"><input type="checkbox" id="oLabels" checked> Zónacímkék</label>
+<label class="c"><input type="checkbox" id="oFill" checked> Zónák színezése</label>
+<label class="s" style="display:block;margin-top:8px">Címtábla háttere: átlátszó ↔ tömör <input type="range" id="aT" min="0" max="100" value="100" style="width:100%"></label>
+<label class="s" style="display:block;margin-top:4px">Jelmagyarázat háttere: átlátszó ↔ tömör <input type="range" id="aL" min="0" max="100" value="100" style="width:100%"></label>
+<div class="row" style="margin-top:8px"><button id="rot90">↻ Kijelölt zóna 90°</button><button id="pReset">Táblák alaphelyzetbe</button></div>
+
+<h2>Elemek</h2>
+<div id="items"></div>
+<div class="row" style="margin-top:8px"><button id="undo">↶ Visszavonás</button><button id="clear">Mindent töröl</button></div>
+<button id="export" class="on" style="width:100%;margin-top:14px;padding:11px">↓ Térkép letöltése (PNG)</button>
+<p class="s" style="margin-top:10px;display:flex;align-items:center;gap:5px;color:#9aa89f">
+<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+Forgatási térkép készítő · modern studio edition
+</p>
+</aside>
+<main><div id="wrap"><canvas id="cv" width="1500" height="1000"></canvas></div></main>
+<div class="drop-hint">⬇ Húzz ide képet a feltöltéshez</div>
+
+<script>
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),$=id=>document.getElementById(id);
+let orig=null,base=null,tool='free',cur=[],mouse=null,drag=null,mpp=null,sel=1;
+let types=[
+ {id:1,name:'BÁZIS',desc:'Stáb bázis, pihenő, catering, smink, öltöző',color:'#ef1c25'},
+ {id:2,name:'SET 1',desc:'Forgatási helyszín',color:'#1463ff'},
+ {id:3,name:'TECHNIKAI + NAGY BUSZ PARKOLÓ',desc:'Technikai járművek, buszok parkolója',color:'#e11be0'},
+ {id:4,name:'STÁB PARKOLÓ',desc:'Stáb autók, személyautók',color:'#ffe500'},
+ {id:5,name:'WC',desc:'Épületen belül (WC)',color:'#12d612'}];
+let nextId=6,items=[],selItem=null,mv=null,focusSel=false;
+const panels={title:{fx:null,fy:null},legend:{fx:null,fy:null}};let notes=[];
+const hints={tarrow:'Húzz egy nyilat a kezdőponttól a végpontig, utána a bal oldalon beírhatod a szövegét, és átszínezheted.',sel:'Kattints bármelyik zónára, útvonalra vagy nyílra: húzással mozgatod, a ⟳ fogantyúval forgatod (Shift = 15°-os lépések, Delete = törlés). Téglalapnál a sarkokon és oldalakon lévő négyzetekkel átméretezheted. A címtábla és a jelmagyarázat bármelyik eszköznél húzható.',free:'Rajzold körbe a területet egérrel vagy ujjal – elengedéskor szép, egyenes élű zónává alakul (aktív zónatípus színével).',fpath:'Húzz végig egy vonalat – sima, nyilas útvonallá alakul.',poly:'Kattints a sarokpontokra, dupla kattintás vagy Enter zárja le a zónát.',rect:'Húzd végig az egeret az átlón a téglalaphoz.',path:'Kattints az útvonal pontjaira, dupla kattintás vagy Enter a befejezéshez.',arrow:'Húzd a nyilat a bejárat helyétől a behajtás irányába.',scale:'Kattints két ismert távolságú pontra (pl. egy épület két vége).'};
+const K=()=>cv.width/1500,F='Inter,"Segoe UI",Arial,sans-serif';
+const T=id=>types.find(t=>t.id===id)||types[0];
+
+function lum(h){const n=parseInt(h.slice(1),16),r=n>>16,g=n>>8&255,b=n&255;return(.299*r+.587*g+.114*b)/255}
+function rr(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
+function pill(txt,x,y,bg,fg,fs,center=true){
+ const k=K();ctx.font=`700 ${fs*k}px ${F}`;const w=ctx.measureText(txt).width+22*k,h=fs*k*1.9;
+ const px=center?x-w/2:x,py=center?y-h/2:y;
+ ctx.save();ctx.shadowColor='rgba(0,0,0,.35)';ctx.shadowBlur=8*k;ctx.shadowOffsetY=2*k;ctx.fillStyle=bg;rr(px,py,w,h,6*k);ctx.fill();ctx.restore();
+ ctx.fillStyle=fg;ctx.textBaseline='middle';ctx.textAlign='left';ctx.fillText(txt,px+11*k,py+h/2+1*k);return[w,h]}
+function arrowHead(a,b,col,size){const ang=Math.atan2(b[1]-a[1],b[0]-a[0]);ctx.fillStyle=col;ctx.beginPath();
+ ctx.moveTo(b[0],b[1]);ctx.lineTo(b[0]-size*Math.cos(ang-.45),b[1]-size*Math.sin(ang-.45));ctx.lineTo(b[0]-size*Math.cos(ang+.45),b[1]-size*Math.sin(ang+.45));ctx.closePath();ctx.fill()}
+function poly(pts,close){ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));if(close)ctx.closePath()}
+function drawPoly(pts,col,close=true,prev=false){
+ const k=K();if(pts.length<2)return;
+ ctx.save();ctx.lineJoin='miter';
+ if(close&&$('oFill').checked){poly(pts,true);ctx.fillStyle=col+'30';ctx.fill()}
+ poly(pts,close);ctx.strokeStyle='rgba(0,0,0,.35)';ctx.lineWidth=9*k;ctx.stroke();
+ poly(pts,close);ctx.strokeStyle=col;ctx.lineWidth=6*k;if(prev)ctx.setLineDash([12*k,8*k]);ctx.stroke();ctx.restore()}
+function drawPath(pts,prev){
+ const k=K();if(pts.length<2)return;ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+ poly(pts,false);ctx.strokeStyle='rgba(0,0,0,.45)';ctx.lineWidth=8*k;ctx.stroke();
+ poly(pts,false);ctx.strokeStyle='#fff';ctx.lineWidth=5*k;ctx.setLineDash([14*k,10*k]);ctx.stroke();ctx.setLineDash([]);
+ const a=pts[pts.length-2],b=pts[pts.length-1];if(!prev)arrowHead(a,b,'#fff',20*k);ctx.restore()}
+function drawEntrance(a,b,col='#ff8a00',txt='BEJÁRAT'){
+ const k=K();ctx.save();ctx.lineCap='round';ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);
+ ctx.strokeStyle='rgba(0,0,0,.4)';ctx.lineWidth=11*k;ctx.stroke();ctx.strokeStyle=col;ctx.lineWidth=7*k;ctx.stroke();
+ arrowHead(a,b,col,30*k);ctx.restore();
+ if(txt)pill(txt,a[0],a[1]-34*k,col,lum(col)>.6?'#111':'#fff',17)}
+function bbox(pts){const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);return[(Math.min(...xs)+Math.max(...xs))/2,(Math.min(...ys)+Math.max(...ys))/2]}
+
+function render(){
+ const k=K(),W=cv.width,H=cv.height;ctx.clearRect(0,0,W,H);
+ if(base)ctx.drawImage(base,0,0,W,H);else{
+  ctx.fillStyle='#2f4b34';ctx.fillRect(0,0,W,H);ctx.strokeStyle='rgba(255,255,255,.07)';ctx.lineWidth=1;
+  for(let x=0;x<W;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
+  for(let y=0;y<H;y+=50){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+  ctx.fillStyle='rgba(255,255,255,.55)';ctx.font=`600 ${26*k}px ${F}`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('Tölts fel egy háttérképet (műholdkép) a bal oldalon',W/2,H/2)}
+ items.filter(i=>i.kind==='poly').forEach(i=>drawPoly(i.pts,T(i.type).color));
+ items.filter(i=>i.kind==='path').forEach(i=>drawPath(i.pts));
+ items.filter(i=>i.kind==='arrow').forEach(i=>drawEntrance(i.pts[0],i.pts[1],i.col||'#ff8a00',i.txt===undefined?'BEJÁRAT':i.txt));
+ if($('oLabels').checked)items.filter(i=>i.kind==='poly').forEach(i=>{const t=T(i.type),c=bbox(i.pts);pill(t.name,c[0],c[1],t.color,lum(t.color)>.6?'#111':'#fff',19)});
+ if(tool==='sel'&&selItem&&items.includes(selItem)){const h=rotHandle(selItem),c=cen(selItem.pts);ctx.save();ctx.strokeStyle='#fff';ctx.lineWidth=2.5*k;ctx.setLineDash([9*k,6*k]);poly(selItem.pts,selItem.kind==='poly');ctx.stroke();ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(c[0],c[1]);ctx.lineTo(h[0],h[1]);ctx.stroke();ctx.beginPath();ctx.arc(h[0],h[1],14*k,0,7);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle='#14181f';ctx.lineWidth=3*k;ctx.stroke();ctx.fillStyle='#14181f';ctx.font=`700 ${18*k}px ${F}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('⟳',h[0],h[1]+1*k);if(selItem.rect)rectHandles(selItem).forEach(q=>{ctx.fillStyle='#fff';ctx.strokeStyle='#14181f';ctx.lineWidth=2.5*k;ctx.beginPath();ctx.rect(q[0]-7*k,q[1]-7*k,14*k,14*k);ctx.fill();ctx.stroke()});ctx.restore()}
+ const m=mouse;
+ if((tool==='poly'||tool==='path')&&cur.length){const pts=m?[...cur,m]:cur;tool==='poly'?drawPoly(pts,T(sel).color,false,true):drawPath(pts,true)}
+ if((tool==='free'||tool==='fpath')&&cur.length>1){tool==='free'?drawPoly(cur,T(sel).color,false,true):drawPath(cur,true)}
+ if(tool==='rect'&&drag&&m){const a=drag,pts=[a,[m[0],a[1]],m,[a[0],m[1]]];drawPoly(pts,T(sel).color,true,true)}
+ if((tool==='arrow'||tool==='tarrow')&&drag&&m)drawEntrance(drag,m,tool==='arrow'?'#ff8a00':$('tCol').value,tool==='arrow'?'BEJÁRAT':'Szöveg');
+ if(tool==='scale'&&cur.length){ctx.strokeStyle='#fff';ctx.lineWidth=3*k;ctx.setLineDash([6,6]);poly(m&&cur.length<2?[cur[0],m]:cur,false);ctx.stroke();ctx.setLineDash([])}
+ drawOverlays();
+}
+function drawOverlays(){
+ const k=K(),W=cv.width,H=cv.height,m=28*k;
+ const t=$('title').value,sb=$('sub').value,aT=$('aT').value/100,aL=$('aL').value/100,PT=panels.title,PL=panels.legend;PT.r=null;PL.r=null;
+ if(t||sb){ctx.font=`800 ${44*k}px ${F}`;const w1=ctx.measureText(t).width;ctx.font=`500 ${25*k}px ${F}`;const w2=ctx.measureText(sb).width;
+  const w=Math.max(w1,w2)+56*k,h=(sb?118:84)*k,x=PT.fx==null?m:PT.fx*W,y=PT.fy==null?m:PT.fy*H;PT.r=[x,y,w,h];
+  ctx.save();if(aT>0){ctx.shadowColor=`rgba(0,0,0,${.35*aT})`;ctx.shadowBlur=18*k;ctx.shadowOffsetY=4*k;ctx.fillStyle=`rgba(255,255,255,${aT})`;rr(x,y,w,h,10*k);ctx.fill();ctx.shadowColor='transparent'}
+  if(aT<.5){ctx.shadowColor='rgba(0,0,0,.85)';ctx.shadowBlur=7*k}
+  ctx.fillStyle=aT<.4?'#fff':'#14181f';ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.font=`800 ${44*k}px ${F}`;ctx.fillText(t,x+28*k,y+(sb?54:56)*k);
+  ctx.fillStyle=aT<.4?'#eee':'#333';ctx.font=`500 ${25*k}px ${F}`;ctx.fillText(sb,x+28*k,y+92*k);ctx.restore()}
+ if($('oLegend').checked){
+  const used=[...new Set(items.filter(i=>i.kind==='poly').map(i=>i.type))].map(T).filter(Boolean);
+  const rows=used.map(t=>({sw:t.color,n:t.name,d:t.desc,k:'box'}));
+  if(items.some(i=>i.kind==='arrow'&&(i.ent||i.txt===undefined)))rows.push({sw:'#ff8a00',n:'BEJÁRAT',d:'Gépjármű bejárat a területre',k:'arr'});
+  if(items.some(i=>i.kind==='path'))rows.push({sw:'#999',n:'ÚTVONAL',d:'Belső közlekedési útvonal',k:'dash'});
+  if(rows.length){
+   ctx.textBaseline='alphabetic';let mw=0;rows.forEach(r=>{ctx.font=`700 ${19*k}px ${F}`;mw=Math.max(mw,ctx.measureText(r.n).width);ctx.font=`400 ${15*k}px ${F}`;mw=Math.max(mw,ctx.measureText(r.d).width)});
+   const rh=62*k,w=mw+110*k,h=70*k+rows.length*rh,x=PL.fx==null?W-m-w:PL.fx*W,y=PL.fy==null?m:PL.fy*H;PL.r=[x,y,w,h];
+   ctx.save();if(aL>0){ctx.shadowColor=`rgba(0,0,0,${.35*aL})`;ctx.shadowBlur=18*k;ctx.shadowOffsetY=4*k;ctx.fillStyle=`rgba(255,255,255,${aL})`;rr(x,y,w,h,10*k);ctx.fill();ctx.shadowColor='transparent'}if(aL<.5){ctx.shadowColor='rgba(0,0,0,.85)';ctx.shadowBlur=7*k}const tc=aL<.4?'#fff':'#14181f',tc2=aL<.4?'#eee':'#666';
+   ctx.fillStyle=tc;ctx.font=`800 ${22*k}px ${F}`;ctx.textAlign='left';ctx.fillText('JELMAGYARÁZAT',x+22*k,y+40*k);
+   rows.forEach((r,i)=>{const ry=y+62*k+i*rh,sx=x+22*k,sy=ry+4*k,z=38*k;
+    if(r.k==='box'){ctx.fillStyle='#fff';ctx.strokeStyle=r.sw;ctx.lineWidth=6*k;ctx.strokeRect(sx+3*k,sy+3*k,z-6*k,z-6*k);ctx.fillStyle=r.sw+'40';ctx.fillRect(sx+3*k,sy+3*k,z-6*k,z-6*k)}
+    else if(r.k==='arr'){ctx.strokeStyle=r.sw;ctx.lineWidth=5*k;ctx.beginPath();ctx.moveTo(sx+z,sy+z/2);ctx.lineTo(sx+6*k,sy+z/2);ctx.stroke();arrowHead([sx+z,sy+z/2],[sx,sy+z/2],r.sw,18*k)}
+    else{ctx.strokeStyle='#888';ctx.lineWidth=4*k;ctx.setLineDash([8*k,6*k]);ctx.beginPath();ctx.moveTo(sx,sy+z/2);ctx.lineTo(sx+z-8*k,sy+z/2);ctx.stroke();ctx.setLineDash([]);arrowHead([sx,sy+z/2],[sx+z,sy+z/2],'#888',14*k)}
+    ctx.fillStyle=tc;ctx.font=`700 ${19*k}px ${F}`;ctx.fillText(r.n,x+78*k,ry+20*k);ctx.fillStyle=tc2;ctx.font=`400 ${15*k}px ${F}`;ctx.fillText(r.d,x+78*k,ry+42*k)});ctx.restore()}}
+ let nb=H-m;
+ notes.forEach(n=>{n.r=null;const nt=(n.x||'').trim(),nh=(n.t||'').trim(),aN=n.a/100;if(!(nt||nh))return;
+  const fs=21*k*n.z/100,lh=fs*1.38,pad=20*k,hh=fs*1.15*1.6,maxW=Math.max(260*k,W*.26),lines=[];ctx.font=`400 ${fs}px ${F}`;
+  nt.split('\n').forEach(par=>{if(!par.trim()){lines.push('');return}let ln='';par.split(/\s+/).forEach(w=>{const t=ln?ln+' '+w:w;if(ctx.measureText(t).width>maxW&&ln){lines.push(ln);ln=w}else ln=t});lines.push(ln)});
+  let w=0;lines.forEach(l=>w=Math.max(w,ctx.measureText(l).width));ctx.font=`800 ${fs*1.15}px ${F}`;if(nh)w=Math.max(w,ctx.measureText(nh).width);
+  const bw=w+pad*2,bh=pad*2+(nh?hh:0)+lines.length*lh,x=n.fx==null?W-m-bw:n.fx*W,y=n.fy==null?nb-bh:n.fy*H;if(n.fy==null)nb=y-14*k;n.r=[x,y,bw,bh];
+  ctx.save();if(aN>0){ctx.shadowColor=`rgba(0,0,0,${.35*aN})`;ctx.shadowBlur=18*k;ctx.shadowOffsetY=4*k;ctx.fillStyle=`rgba(255,255,255,${aN})`;rr(x,y,bw,bh,10*k);ctx.fill();ctx.shadowColor='transparent'}
+  if(aN<.5){ctx.shadowColor='rgba(0,0,0,.85)';ctx.shadowBlur=7*k}
+  ctx.fillStyle=aN<.4?'#fff':'#14181f';ctx.textAlign='left';ctx.textBaseline='alphabetic';let top=y+pad;
+  if(nh){ctx.font=`800 ${fs*1.15}px ${F}`;ctx.fillText(nh,x+pad,top+fs*1.15);top+=hh}
+  ctx.font=`400 ${fs}px ${F}`;lines.forEach((l,i)=>ctx.fillText(l,x+pad,top+fs+i*lh));ctx.restore()});
+ if($('oNorth').checked){const cx=m+30*k,cy=H-m-60*k;ctx.save();ctx.shadowColor='rgba(0,0,0,.6)';ctx.shadowBlur=6*k;ctx.fillStyle='#fff';ctx.font=`800 ${26*k}px ${F}`;ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.fillText('N',cx,cy-34*k);
+  ctx.beginPath();ctx.moveTo(cx,cy-26*k);ctx.lineTo(cx+26*k,cy+40*k);ctx.lineTo(cx,cy+22*k);ctx.lineTo(cx-26*k,cy+40*k);ctx.closePath();ctx.fill();ctx.restore()}
+ if($('oScale').checked&&mpp){const target=W*.14*mpp,nice=[5,10,20,25,50,100,200,250,500,1000].reduce((a,b)=>Math.abs(b-target)<Math.abs(a-target)?b:a),len=nice/mpp;
+  const x=m+110*k,y=H-m-14*k;ctx.save();ctx.shadowColor='rgba(0,0,0,.7)';ctx.shadowBlur=5*k;ctx.strokeStyle='#fff';ctx.fillStyle='#fff';ctx.lineWidth=4*k;
+  ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+len,y);for(let i=0;i<=4;i++){ctx.moveTo(x+len*i/4,y);ctx.lineTo(x+len*i/4,y-(i%4?10:18)*k)}ctx.stroke();
+  ctx.font=`700 ${20*k}px ${F}`;ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.fillText('0',x-4*k,y-26*k);ctx.textAlign='right';ctx.fillText(nice+' m',x+len+10*k,y-26*k);ctx.restore()}
+}
+
+// UI
+function renderTypes(){
+ const el=$('types');el.innerHTML='';
+ types.forEach(t=>{const d=document.createElement('div');d.className='type'+(t.id===sel?' sel':'');
+  d.innerHTML=`<input type="radio" name="tp" ${t.id===sel?'checked':''} style="margin-top:10px"><input type="color" value="${t.color}"><div class="f"><input type="text" value="${t.name.replace(/"/g,'&quot;')}"><input type="text" value="${t.desc.replace(/"/g,'&quot;')}" style="font-size:12px"></div><button title="Törlés" class="icon-btn-danger" style="padding:2px 7px">×</button>`;
+  const [r,c,f,b]=d.children;r.onchange=()=>{sel=t.id;renderTypes()};
+  c.oninput=()=>{t.color=c.value;render()};
+  f.children[0].oninput=e=>{t.name=e.target.value;render();renderItems()};f.children[1].oninput=e=>{t.desc=e.target.value;render()};
+  b.onclick=()=>{if(types.length<2)return;types=types.filter(x=>x!==t);items=items.filter(i=>i.type!==t.id);if(sel===t.id)sel=types[0].id;renderTypes();renderItems();render()};
+  el.appendChild(d)})}
+function renderItems(){selPanel();
+ const el=$('items');el.innerHTML='';if(!items.length){el.innerHTML='<p class="s">Még nincs elem.</p>';return}
+ items.forEach((it,idx)=>{const d=document.createElement('div');d.className='item';
+  const n=it.kind==='poly'?'Zóna – '+T(it.type).name:it.kind==='path'?'Közlekedési útvonal':'Nyíl'+(it.txt?' – '+it.txt:'');
+  d.innerHTML=`<span></span><button>×</button>`;d.firstChild.textContent=n;d.lastChild.onclick=()=>{items.splice(idx,1);renderItems();render()};el.appendChild(d)})}
+function setTool(t){tool=t;cur=[];drag=null;mv=null;cv.style.cursor=t==='sel'?'default':'crosshair';document.querySelectorAll('#tools button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));$('hint').textContent=hints[t];$('scaleRow').style.display=t==='scale'?'flex':'none';render()}
+document.querySelectorAll('#tools button').forEach(b=>b.onclick=()=>setTool(b.dataset.t));
+function finish(){const n=items.length;
+ if((tool==='poly'&&cur.length>=3))items.push({kind:'poly',type:sel,pts:cur});
+ else if(tool==='path'&&cur.length>=2)items.push({kind:'path',pts:cur});
+ cur=[];renderItems();after(n)}
+$('finish').onclick=finish;$('cancel').onclick=()=>{cur=[];drag=null;render()};
+addEventListener('keydown',e=>{if(e.target.tagName==='TEXTAREA'||(e.target.tagName==='INPUT'&&e.target.type!=='checkbox'&&e.target.type!=='radio'))return;if(e.key==='Enter')finish();if((e.key==='Delete'||e.key==='Backspace')&&selItem){items=items.filter(i=>i!==selItem);selItem=null;renderItems();render()}if(e.key==='Escape'){cur=[];drag=null;render()}});
+$('addType').onclick=()=>{const c=['#ff8a00','#00c2ff','#8a2be2','#ffffff'][types.length%4];types.push({id:nextId,name:'ÚJ ZÓNA',desc:'Leírás',color:c});sel=nextId++;renderTypes()};
+$('undo').onclick=()=>{if(cur.length){cur.pop()}else items.pop();renderItems();render()};
+$('clear').onclick=()=>{items=[];cur=[];renderItems();render()};
+['title','sub','aT','aL','oLegend','oNorth','oScale','oLabels','oFill'].forEach(i=>$(i).addEventListener('input',render));
+
+function pos(e){const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*cv.width/r.width,(e.clientY-r.top)*cv.height/r.height]}
+cv.addEventListener('pointerdown',e=>{
+ const p=pos(e);
+ const pa=tool!=='sel'&&tool!=='scale'&&!cur.length?panelAt(p):null;
+ if(pa){selItem=null;mv={t:'panel',k:pa,dx:p[0]-pa.r[0],dy:p[1]-pa.r[1]};cv.setPointerCapture(e.pointerId)}
+ else if(tool==='sel'){const hr=rotHandle(selItem);let rh=-1;if(selItem&&selItem.rect&&items.includes(selItem))rectHandles(selItem).forEach((q,i)=>{if(rh<0&&Math.hypot(p[0]-q[0],p[1]-q[1])<18*K())rh=i});
+  if(rh>=0){const P=selItem.pts,u=[P[1][0]-P[0][0],P[1][1]-P[0][1]],v=[P[3][0]-P[0][0],P[3][1]-P[0][1]],w=Math.hypot(u[0],u[1])||1,h=Math.hypot(v[0],v[1])||1;mv={t:'rs',i:rh,O:P[0].slice(),eu:[u[0]/w,u[1]/w],ev:[v[0]/h,v[1]/h],w,h}}
+  else if(hr&&Math.hypot(p[0]-hr[0],p[1]-hr[1])<24*K()){const c=cen(selItem.pts);mv={t:'rot',c,o:selItem.pts.map(q=>q.slice()),r0:selItem.rot||0,a0:Math.atan2(p[1]-c[1],p[0]-c[0])}}
+  else{const hit=panelAt(p);
+   if(hit){selItem=null;mv={t:'panel',k:hit,dx:p[0]-hit.r[0],dy:p[1]-hit.r[1]}}
+   else{const it=hitItem(p);selItem=it||null;if(it)mv={t:'move',last:p}}}
+  if(mv)cv.setPointerCapture(e.pointerId);renderItems()}
+ else if(tool==='poly'||tool==='path'){cur.push(p)}
+ else if(tool==='free'||tool==='fpath'){cur=[p];drag=p;cv.setPointerCapture(e.pointerId)}
+ else if(tool==='rect'||tool==='arrow'||tool==='tarrow'){drag=p;cv.setPointerCapture(e.pointerId)}
+ else if(tool==='scale'){cur.push(p);if(cur.length===2){const d=Math.hypot(cur[0][0]-cur[1][0],cur[0][1]-cur[1][1]);const m=+$('scaleM').value||50;if(d>5)mpp=m/d;cur=[];setTool('free')}}
+ mouse=p;render()});
+cv.addEventListener('pointermove',e=>{mouse=pos(e);
+ if(!mv)cv.style.cursor=(panelAt(mouse)||(tool==='sel'&&hitItem(mouse)))?'move':tool==='sel'?'default':'crosshair';
+ if(mv){const p=mouse;
+  if(mv.t==='rot'){let d=Math.atan2(p[1]-mv.c[1],p[0]-mv.c[0])-mv.a0;if(e.shiftKey){const u=Math.PI/12;d=Math.round((mv.r0+d)/u)*u-mv.r0}
+   const cs=Math.cos(d),sn=Math.sin(d),c=mv.c;selItem.pts=mv.o.map(q=>[c[0]+(q[0]-c[0])*cs-(q[1]-c[1])*sn,c[1]+(q[0]-c[0])*sn+(q[1]-c[1])*cs]);selItem.rot=mv.r0+d}
+  else if(mv.t==='rs'){const d=[p[0]-mv.O[0],p[1]-mv.O[1]],mx=d[0]*mv.eu[0]+d[1]*mv.eu[1],my=d[0]*mv.ev[0]+d[1]*mv.ev[1],xs=[0,mv.w],ys=[0,mv.h],H=RS[mv.i];
+   if(H.x!=null)xs[H.x]=mx;if(H.y!=null)ys[H.y]=my;
+   let x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);const mn=12*K();if(x1-x0<mn)x1=x0+mn;if(y1-y0<mn)y1=y0+mn;
+   selItem.pts=[[x0,y0],[x1,y0],[x1,y1],[x0,y1]].map(q=>[mv.O[0]+q[0]*mv.eu[0]+q[1]*mv.ev[0],mv.O[1]+q[0]*mv.eu[1]+q[1]*mv.ev[1]])}
+  else if(mv.t==='move'){const dx=p[0]-mv.last[0],dy=p[1]-mv.last[1];selItem.pts=selItem.pts.map(q=>[q[0]+dx,q[1]+dy]);mv.last=p}
+  else{const pn=mv.k;pn.fx=(p[0]-mv.dx)/cv.width;pn.fy=(p[1]-mv.dy)/cv.height}
+  render();return}
+ if(drag&&(tool==='free'||tool==='fpath'))cur.push(mouse);if(cur.length||drag)render()});
+cv.addEventListener('pointerup',e=>{
+ if(mv){mv=null;render();return}
+ if(!drag)return;const p=pos(e);
+ if(tool==='free'||tool==='fpath'){const n=items.length,pts=cur,e2=+$('sm').value*K();cur=[];drag=null;
+  if(pts.length>4){if(tool==='free'){let f=0,md=0;pts.forEach((q,i)=>{const d=Math.hypot(q[0]-pts[0][0],q[1]-pts[0][1]);if(d>md){md=d;f=i}});
+   const z=rdp(pts.slice(0,f+1),e2).slice(0,-1).concat(rdp(pts.slice(f),e2));if(z.length>=3)items.push({kind:'poly',type:sel,pts:z})}
+   else items.push({kind:'path',pts:smooth(rdp(pts,e2*.5))})}
+  renderItems();after(n);return}
+ if(Math.hypot(p[0]-drag[0],p[1]-drag[1])>8){
+  if(tool==='rect'){selItem={kind:'poly',type:sel,rot:0,rect:true,pts:[drag,[p[0],drag[1]],p,[drag[0],p[1]]]};items.push(selItem)}
+  else items.push(tool==='tarrow'?{kind:'arrow',txt:'Szöveg',col:$('tCol').value,pts:[drag,p]}:{kind:'arrow',ent:true,txt:'BEJÁRAT',col:'#ff8a00',pts:[drag,p]})}
+ const was=tool;drag=null;renderItems();if(was==='rect'&&selItem)setTool('sel');else if((was==='arrow'||was==='tarrow')&&($('autoSel').checked||was==='tarrow')){selItem=items[items.length-1]||null;if(was==='tarrow')focusSel=true;setTool('sel');renderItems()}else render()});
+cv.addEventListener('dblclick',()=>{if(tool==='poly'||tool==='path'){cur.pop();finish()}});
+
+function after(n){if(items.length>n)selItem=items[items.length-1];$('autoSel').checked?setTool('sel'):render()}
+function segD(p,a,b){const dx=b[0]-a[0],dy=b[1]-a[1],L=dx*dx+dy*dy||1,t=Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/L));return Math.hypot(p[0]-a[0]-t*dx,p[1]-a[1]-t*dy)}
+function hitItem(p){return[...items].reverse().find(i=>{if(i.kind==='poly'&&inPoly(p,i.pts))return true;const v=i.pts,n=i.kind==='poly'?v.length:v.length-1,tol=(i.kind==='arrow'?26:18)*K();for(let j=0;j<n;j++)if(segD(p,v[j],v[(j+1)%v.length])<tol)return true;return false})}
+function panelAt(p){for(const q of[...notes].reverse().concat([panels.legend,panels.title])){const r=q.r;if(r&&p[0]>=r[0]&&p[0]<=r[0]+r[2]&&p[1]>=r[1]&&p[1]<=r[1]+r[3])return q}return null}
+const RS=[{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:0,y:1},{y:0},{x:1},{y:1},{x:0}];
+function rectHandles(it){const P=it.pts,h=P.map(q=>q);for(let i=0;i<4;i++){const a=P[i],b=P[(i+1)%4];h.push([(a[0]+b[0])/2,(a[1]+b[1])/2])}return h}
+const cen=p=>[p.reduce((a,q)=>a+q[0],0)/p.length,p.reduce((a,q)=>a+q[1],0)/p.length];
+function rotHandle(it){if(!it||!items.includes(it))return null;const c=cen(it.pts),r=Math.max(...it.pts.map(q=>Math.hypot(q[0]-c[0],q[1]-c[1])))+46*K(),a=it.rot||0;return[c[0]+Math.sin(a)*r,c[1]-Math.cos(a)*r]}
+function inPoly(p,v){let c=false;for(let i=0,j=v.length-1;i<v.length;j=i++){if((v[i][1]>p[1])!==(v[j][1]>p[1])&&p[0]<(v[j][0]-v[i][0])*(p[1]-v[i][1])/(v[j][1]-v[i][1])+v[i][0])c=!c}return c}
+function selPanel(){const P=$('selP'),a=selItem&&items.includes(selItem)&&selItem.kind==='arrow'?selItem:null;P.style.display=a?'block':'none';if(!a)return;
+ $('aTxt').value=a.txt===undefined?'BEJÁRAT':a.txt;$('aCol').value=a.col||'#ff8a00';
+ if(focusSel){focusSel=false;setTimeout(()=>{$('aTxt').focus();$('aTxt').select()},0)}}
+$('aTxt').oninput=e=>{if(selItem&&selItem.kind==='arrow'){selItem.txt=e.target.value;render()}};
+$('aCol').oninput=e=>{if(selItem&&selItem.kind==='arrow'){selItem.col=e.target.value;render()}};
+$('rot90').onclick=()=>{if(!selItem||!items.includes(selItem))return;const c=cen(selItem.pts);selItem.pts=selItem.pts.map(q=>[c[0]-(q[1]-c[1]),c[1]+(q[0]-c[0])]);selItem.rot=(selItem.rot||0)+Math.PI/2;render()};
+$('pReset').onclick=()=>{panels.title.fx=panels.title.fy=panels.legend.fx=panels.legend.fy=null;notes.forEach(n=>n.fx=n.fy=null);render()};
+function rdp(p,e){if(p.length<3)return p;const a=p[0],b=p[p.length-1],dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1;let md=0,mi=0;
+ for(let i=1;i<p.length-1;i++){const d=Math.abs(dy*p[i][0]-dx*p[i][1]+b[0]*a[1]-b[1]*a[0])/L;if(d>md){md=d;mi=i}}
+ return md>e?rdp(p.slice(0,mi+1),e).slice(0,-1).concat(rdp(p.slice(mi),e)):[a,b]}
+function smooth(p){for(let n=0;n<2;n++){const o=[p[0]];for(let i=0;i<p.length-1;i++){const a=p[i],b=p[i+1];o.push([.75*a[0]+.25*b[0],.75*a[1]+.25*b[1]],[.25*a[0]+.75*b[0],.25*a[1]+.75*b[1]])}o.push(p[p.length-1]);p=o}return p}
+let tm;const rebuild=()=>{clearTimeout(tm);tm=setTimeout(doBuild,120)};
+function doBuild(){if(!orig)return;const w=Math.round(Math.min(orig.naturalWidth*($('eUp').checked?2:1),3600)),h=Math.round(w*orig.naturalHeight/orig.naturalWidth);
+ const b=document.createElement('canvas');b.width=w;b.height=h;const c=b.getContext('2d');c.imageSmoothingQuality='high';
+ c.filter=`contrast(${$('eCo').value}%) saturate(${$('eSa').value}%) brightness(${$('eBr').value}%)`;c.drawImage(orig,0,0,w,h);c.filter='none';
+ const a=$('eSh').value/100*1.2;
+ if(a>0){const d=c.getImageData(0,0,w,h),s=d.data,o=new Uint8ClampedArray(s),st=w*4;
+  for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){const i=y*st+x*4;for(let q=0;q<3;q++){const j=i+q;o[j]=s[j]*(1+4*a)-a*(s[j-4]+s[j+4]+s[j-st]+s[j+st])}}
+  d.data.set(o);c.putImageData(d,0,0)}
+ const r=w/cv.width;if(r!==1){items.forEach(i=>i.pts=i.pts.map(p=>[p[0]*r,p[1]*r]));cur=[];if(mpp)mpp/=r}
+ base=b;cv.width=w;cv.height=h;render()}
+['eSh','eCo','eSa','eBr','eUp'].forEach(i=>$(i).addEventListener('input',rebuild));
+const setE=(sh,co,sa,up)=>{$('eSh').value=sh;$('eCo').value=co;$('eSa').value=sa;$('eBr').value=100;$('eUp').checked=up;doBuild()};
+$('auto').onclick=()=>setE(60,108,115,true);$('eRes').onclick=()=>setE(0,100,100,false);
+function loadImg(f){if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{orig=im;cv.width=Math.round(Math.min(im.naturalWidth*($('eUp').checked?2:1),3600));mpp=null;doBuild()};origData=r.result;im.src=r.result};r.readAsDataURL(f)}
+$('file').onchange=e=>loadImg(e.target.files[0]);
+addEventListener('dragover',e=>e.preventDefault());addEventListener('drop',e=>{e.preventDefault();loadImg(e.dataTransfer.files[0])});
+$('export').onclick=()=>{selItem=null;mouse=null;cur=[];render();cv.toBlob(b=>saveFile('forgatasi-terkep.png',b))};
+
+renderTypes();renderItems();setTool('free');
+// ---- projektek ----
+let origData=null,ready=false,asT;
+const DEFT=JSON.stringify(types);
+function renderNotes(){const el=$('nList');el.innerHTML='';
+ notes.forEach((n,i)=>{const d=document.createElement('div');d.className='note-card';
+  d.innerHTML='<div class="row" style="justify-content:space-between"><b style="font-size:12px">Megjegyzés '+(i+1)+'</b><button title="Törlés" class="icon-btn-danger" style="padding:2px 8px">×</button></div><input type="text" placeholder="Címsor (pl. FONTOS)"><textarea rows="3" placeholder="Bármilyen extra infó: időpontok, elérhetőségek, korlátozások…"></textarea><label class="s">Háttér: átlátszó ↔ tömör <input type="range" min="0" max="100" style="width:100%"></label><label class="s">Betűméret <input type="range" min="60" max="180" style="width:100%"></label>';
+  const [h,ti,tx,l1,l2]=d.children,r1=l1.querySelector('input'),r2=l2.querySelector('input');
+  ti.value=n.t;tx.value=n.x;r1.value=n.a;r2.value=n.z;
+  ti.oninput=()=>{n.t=ti.value;render()};tx.oninput=()=>{n.x=tx.value;render()};r1.oninput=()=>{n.a=+r1.value;render()};r2.oninput=()=>{n.z=+r2.value;render()};
+  h.lastChild.onclick=()=>{notes.splice(i,1);renderNotes();render()};el.appendChild(d)})}
+$('nAdd').onclick=()=>{notes.push({t:'',x:'',a:100,z:100,fx:null,fy:null});renderNotes();render();const ta=$('nList').querySelectorAll('textarea');ta[ta.length-1].focus()};
+const idb=new Promise(res=>{try{const r=indexedDB.open('terkep',1);r.onupgradeneeded=()=>r.result.createObjectStore('p');r.onsuccess=()=>res(r.result);r.onerror=()=>res(null)}catch(e){res(null)}});
+const dbop=(m,...a)=>idb.then(d=>d?new Promise(res=>{try{const st=d.transaction('p',m==='getAll'||m==='get'?'readonly':'readwrite').objectStore('p'),r=st[m](...a);r.onsuccess=()=>res(r.result===undefined?true:r.result);r.onerror=()=>res(null)}catch(e){res(null)}}):null);
+const OPT=['oLegend','oNorth','oScale','oLabels','oFill','eUp','autoSel'],RNG=['aT','aL','eSh','eCo','eSa','eBr','sm'];
+function snap(){const o={},g={};OPT.forEach(i=>o[i]=$(i).checked);RNG.forEach(i=>g[i]=$(i).value);
+ return{v:1,t:Date.now(),pn:$('pName').value,title:$('title').value,sub:$('sub').value,types,nextId,sel,items,panels:{title:{fx:panels.title.fx,fy:panels.title.fy},legend:{fx:panels.legend.fx,fy:panels.legend.fy}},notes:notes.map(n=>({t:n.t,x:n.x,a:n.a,z:n.z,fx:n.fx,fy:n.fy})),mpp,cw:cv.width,opts:o,rng:g,img:origData}}
+function restore(st){types=st.types;nextId=st.nextId;sel=st.sel;items=st.items;selItem=null;cur=[];mpp=st.mpp;
+ panels.title.fx=st.panels.title.fx;panels.title.fy=st.panels.title.fy;panels.legend.fx=st.panels.legend.fx;panels.legend.fy=st.panels.legend.fy;notes=(st.notes||[]).map(n=>({t:n.t||'',x:n.x||'',a:n.a==null?100:n.a,z:n.z==null?100:n.z,fx:n.fx==null?null:n.fx,fy:n.fy==null?null:n.fy}));renderNotes();
+ $('title').value=st.title;$('sub').value=st.sub;if(st.pn)$('pName').value=st.pn;
+ Object.entries(st.opts).forEach(([k,v])=>$(k).checked=v);Object.entries(st.rng).forEach(([k,v])=>{if($(k))$(k).value=v});
+ renderTypes();renderItems();origData=st.img||null;
+ if(st.img){const im=new Image();im.onload=()=>{orig=im;cv.width=st.cw;doBuild()};im.src=st.img}else{orig=null;base=null;cv.width=st.cw||1500;cv.height=Math.round(cv.width*2/3);render()}}
+const _rd=render;render=function(){_rd();if(ready){clearTimeout(asT);asT=setTimeout(()=>dbop('put',{...snap(),auto:true,name:'__auto'},'__auto'),1200)}};
+async function saveFile(n,b){const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=n;a.click()}
+async function plist(){const all=await dbop('getAll'),el=$('pList');el.innerHTML='';
+ if(all===null){$('pMsg').textContent='A böngésző tárhelye nem elérhető, a mentés csak fájlba működik.';return}
+ (all===true?[]:all).filter(r=>!r.auto).sort((a,b)=>b.t-a.t).forEach(r=>{const d=document.createElement('div');d.className='item';
+  d.innerHTML='<span style="flex:1"></span><button title="Megnyitás">Megnyit</button><button title="Törlés">×</button>';
+  d.firstChild.textContent=r.name+' · '+new Date(r.t).toLocaleString('hu-HU',{dateStyle:'short',timeStyle:'short'});
+  d.children[1].onclick=()=>{restore(r);$('pName').value=r.name;$('pMsg').textContent='Megnyitva: '+r.name};
+  d.children[2].onclick=async()=>{await dbop('delete',r.name);plist()};el.appendChild(d)})}
+$('pSave').onclick=async()=>{const n=$('pName').value.trim()||'Névtelen';$('pName').value=n;const ok=await dbop('put',{...snap(),name:n},n);$('pMsg').textContent=ok?'Elmentve: '+n:'A mentés nem sikerült (tárhely nem elérhető).';plist()};
+$('pNew').onclick=()=>{if(!confirm('Új, üres projektet kezdesz? (A mentett projektek megmaradnak.)'))return;
+ restore({types:JSON.parse(DEFT),nextId:6,sel:1,items:[],panels:{title:{fx:null,fy:null},legend:{fx:null,fy:null}},mpp:null,cw:1500,pn:'Új projekt',title:'FORGATÁSI HELYSZÍN TÉRKÉP',sub:'Város, utca, helyszín neve, irányítószám',opts:{oLegend:true,oNorth:true,oScale:true,oLabels:true,oFill:true,eUp:false,autoSel:true},rng:{aT:100,aL:100,eSh:0,eCo:100,eSa:100,eBr:100,sm:14},img:null});$('pMsg').textContent=''};
+$('pFile').onclick=()=>saveFile(($('pName').value.trim()||'projekt')+'.json',new Blob([JSON.stringify(snap())],{type:'application/json'}));
+$('pImp').onclick=()=>$('pImpF').click();
+$('pImpF').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{restore(JSON.parse(r.result));$('pMsg').textContent='Projekt betöltve fájlból.'}catch(x){$('pMsg').textContent='A fájl nem érvényes projektfájl.'}};r.readAsText(f);e.target.value=''};
+(async()=>{const a=await dbop('get','__auto');if(a&&a!==true&&a.items&&(a.items.length||a.img||(a.notes&&a.notes.length))){restore(a);$('pMsg').textContent='Legutóbbi munka visszatöltve.'}ready=true;plist()})();
+</script>
+</body>
+</html>
